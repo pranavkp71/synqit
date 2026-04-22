@@ -56,15 +56,15 @@ class Config:
 
     @property
     def anthropic_api_key(self) -> Optional[str]:
-        return self.get("anthropic_api_key") or os.environ.get("ANTHROPIC_API_KEY")
+        return self.get("anthropic_api_key") or os.getenv("ANTHROPIC_API_KEY")
 
     @property
     def openai_api_key(self) -> Optional[str]:
-        return self.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
+        return self.get("openai_api_key") or os.getenv("OPENAI_API_KEY")
 
     @property
     def huggingface_api_key(self) -> Optional[str]:
-        return self.get("huggingface_api_key") or os.environ.get("HUGGINGFACE_API_KEY")
+        return self.get("huggingface_api_key") or os.getenv("HUGGINGFACE_API_KEY")
 
 
 config = Config()
