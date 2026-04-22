@@ -6,12 +6,9 @@ Handles all git repository interactions for Synqit.
 from __future__ import annotations
 
 import subprocess
-from pathlib import Path
-from typing import Optional
 
 import git
 from git import InvalidGitRepositoryError, Repo
-
 
 # ─────────────────────────────────────────────
 # Repo helpers
@@ -80,25 +77,21 @@ def get_commits_since_main(
 
     # Resolve base branch
     branches = [b.name for b in repo.branches]
-    if base not in branches:
-        if "master" in branches:
-            base = "master"
-        else:
+    try:
+        if base not in branches and "master" not in branches:
             # Fall back to last N commits from HEAD
             log = repo.git.log(
                 f"-{max_commits}",
                 "--oneline",
                 "--no-merges",
             )
-            return _trim(log, max_chars)
-
-    try:
-        log = repo.git.log(
-            f"{base}..HEAD",
-            "--oneline",
-            "--no-merges",
-            f"--max-count={max_commits}",
-        )
+        else:
+            log = repo.git.log(
+                f"{base}..HEAD",
+                "--oneline",
+                "--no-merges",
+                f"--max-count={max_commits}",
+            )
     except git.GitCommandError:
         log = repo.git.log(
             f"-{max_commits}",

@@ -5,7 +5,6 @@ Synqit CLI — AI-powered Git assistant.
 
 from __future__ import annotations
 
-import sys
 from typing import Optional
 
 import typer
@@ -13,9 +12,7 @@ from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich.rule import Rule
 from rich.text import Text
-from rich import print as rprint
 
 from synqit import __version__
 from synqit.ai import generate_commit_message, generate_pr_description
@@ -43,10 +40,10 @@ err_console = Console(stderr=True)
 SYNQIT_BANNER = """[bold #c9a84c]
   ███████╗██╗   ██╗███╗   ██╗ ██████╗ ██╗████████╗
   ██╔════╝╚██╗ ██╔╝████╗  ██║██╔═══██╗██║╚══██╔══╝
-  ███████╗ ╚████╔╝ ██╔██╗ ██║██║   ██║██║   ██║   
-  ╚════██║  ╚██╔╝  ██║╚██╗██║██║▄▄ ██║██║   ██║   
-  ███████║   ██║   ██║ ╚████║╚██████╔╝██║   ██║   
-  ╚══════╝   ╚═╝   ╚═╝  ╚═══╝ ╚══▀▀═╝ ╚═╝   ╚═╝  
+  ███████╗ ╚████╔╝ ██╔██╗ ██║██║   ██║██║   ██║
+  ╚════██║  ╚██╔╝  ██║╚██╗██║██║▄▄ ██║██║   ██║
+  ███████║   ██║   ██║ ╚████║╚██████╔╝██║   ██║
+  ╚══════╝   ╚═╝   ╚═╝  ╚═══╝ ╚══▀▀═╝ ╚═╝   ╚═╝
 [/bold #c9a84c]"""
 
 
@@ -72,7 +69,7 @@ def commit(
         "--quality", "-q",
         help="Use Claude Sonnet for higher quality (slower).",
     ),
-):
+) -> None:
     """
     [bold]Generate a commit message[/bold] from your staged changes.
 
@@ -93,7 +90,7 @@ def commit(
     # ── Step 2: call AI ────────────────────────
     label = "Generating commit message…"
     if context:
-        label = f"Generating context-aware commit message…"
+        label = "Generating context-aware commit message…"
 
     with _spinner(label):
         try:
@@ -150,7 +147,7 @@ def pr(
         "--quality", "-q",
         help="Use Claude Sonnet for higher quality (slower).",
     ),
-):
+) -> None:
     """
     [bold]Generate a PR description[/bold] from commits since base branch.
 
@@ -194,7 +191,7 @@ def pr(
 # ─────────────────────────────────────────────
 
 @app.command()
-def version():
+def version() -> None:
     """Show Synqit version."""
     console.print(f"[#c9a84c]synqit[/#c9a84c] v{__version__}")
 
@@ -203,7 +200,7 @@ def version():
 # Helpers
 # ─────────────────────────────────────────────
 
-def _spinner(label: str):
+def _spinner(label: str) -> Progress:
     return Progress(
         SpinnerColumn(spinner_name="dots", style="#c9a84c"),
         TextColumn(f"[dim]{label}[/dim]"),
