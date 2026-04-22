@@ -16,7 +16,7 @@ CONFIG_PATH = Path.home() / ".synqit.json"
 class Config:
     """Manages Synqit configuration."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._config: Dict[str, Any] = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:

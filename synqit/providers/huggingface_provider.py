@@ -40,6 +40,7 @@ class HuggingFaceProvider(AIProvider):
                 max_tokens=max_tokens,
                 model=model or self.DEFAULT_MODEL,
             )
-            return response.choices[0].message.content.strip()
+            content = response.choices[0].message.content
+            return content.strip() if content else ""
         except Exception as e:
             raise RuntimeError(f"Hugging Face Inference API error: {str(e)}")
