@@ -11,7 +11,7 @@ from synqit.providers.base import AIProvider
 class HuggingFaceProvider(AIProvider):
     """Hugging Face AI provider (Default/Free)."""
 
-    DEFAULT_MODEL = "HuggingFaceH4/zephyr-7b-beta"
+    DEFAULT_MODEL = "Qwen/Qwen2.5-7B-Instruct"
 
     def __init__(self, api_key: Optional[str] = None):
         # Enforce API key as per user requirement
@@ -28,7 +28,7 @@ class HuggingFaceProvider(AIProvider):
         model: Optional[str] = None,
         max_tokens: int = 512,
     ) -> str:
-        # Using chat_completion for better compatibility with instruct models
+        # Using chat_completion for best compatibility
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
