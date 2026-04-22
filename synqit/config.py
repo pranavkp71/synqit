@@ -39,7 +39,7 @@ class Config:
         env_key = f"SYNQIT_{key.upper()}"
         if env_key in os.environ:
             return os.environ[env_key]
-        
+
         # Also check direct names for well-known keys like AI_PROVIDER
         if key.upper() in os.environ:
             return os.environ[key.upper()]

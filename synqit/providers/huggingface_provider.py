@@ -18,7 +18,7 @@ class HuggingFaceProvider(AIProvider):
         self.api_key = api_key or os.getenv("HUGGINGFACE_API_KEY")
         if not self.api_key:
             raise RuntimeError("❌ Missing HUGGINGFACE_API_KEY. Set it in .env file")
-        
+
         self.client = InferenceClient(model=self.DEFAULT_MODEL, token=self.api_key)
 
     def generate(
@@ -33,7 +33,7 @@ class HuggingFaceProvider(AIProvider):
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ]
-        
+
         try:
             response = self.client.chat_completion(
                 messages,

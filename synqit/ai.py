@@ -9,7 +9,6 @@ from synqit.prompts import (
     commit_user_prompt,
     pr_user_prompt,
 )
-
 from synqit.providers import (
     AIProvider,
     AnthropicProvider,
@@ -24,7 +23,7 @@ from synqit.providers import (
 def get_provider() -> AIProvider:
     """Return an AIProvider instance based on current configuration."""
     provider_name = config.provider.lower()
-    
+
     if provider_name == "anthropic":
         return AnthropicProvider(api_key=config.anthropic_api_key)
     elif provider_name == "openai":
@@ -53,7 +52,7 @@ def generate_commit_message(
         The generated commit message as a string.
     """
     provider = get_provider()
-    
+
     # Provider-specific model overrides for 'quality' if needed
     model = None
     if quality:
@@ -61,7 +60,7 @@ def generate_commit_message(
             model = "claude-3-5-sonnet-20240620"
         elif isinstance(provider, OpenAIProvider):
             model = "gpt-4o"
-    
+
     return provider.generate(
         system_prompt=COMMIT_SYSTEM,
         user_prompt=commit_user_prompt(diff, context),
@@ -84,7 +83,7 @@ def generate_pr_description(
         The generated PR description as a markdown string.
     """
     provider = get_provider()
-    
+
     model = None
     if quality:
         if isinstance(provider, AnthropicProvider):

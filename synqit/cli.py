@@ -5,9 +5,9 @@ Synqit CLI — AI-powered Git assistant.
 
 from __future__ import annotations
 
+import json
 from typing import Optional
 
-import json
 import typer
 from rich.console import Console
 from rich.markdown import Markdown
@@ -209,12 +209,16 @@ def setup() -> None:
     console.print("  [1] Hugging Face (free, lower quality)")
     console.print("  [2] OpenAI (recommended)")
     console.print("  [3] Anthropic (recommended)")
-    
+
     choice = typer.prompt("\nSelect preference", type=int, default=1)
-    
+
     if choice == 1:
         config.set("ai_provider", "huggingface")
-        key = typer.prompt("Hugging Face API Key (optional, press enter to skip)", default="", show_default=False)
+        key = typer.prompt(
+            "Hugging Face API Key (optional, press enter to skip)",
+            default="",
+            show_default=False,
+        )
         if key:
             config.set("huggingface_api_key", key)
     elif choice == 2:
@@ -294,7 +298,8 @@ def _check_provider() -> None:
     """Show warning if using free provider."""
     if config.provider == "huggingface":
         console.print(
-            "  [#c9a84c]⚠️[/#c9a84c] [dim]Using free model (lower quality). For better results, use OpenAI or Anthropic.[/dim]"
+            "  [#c9a84c]⚠️[/#c9a84c] [dim]Using free model (lower quality). "
+            "For better results, use OpenAI or Anthropic.[/dim]"
         )
 
 
