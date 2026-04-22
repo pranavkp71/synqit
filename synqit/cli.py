@@ -16,6 +16,7 @@ from rich.text import Text
 
 from synqit import __version__
 from synqit.ai import generate_commit_message, generate_pr_description
+from synqit.config import config
 from synqit.git_utils import (
     apply_commit,
     get_commits_since_main,
@@ -80,6 +81,9 @@ def commit(
       synqit commit --apply
       synqit commit -c "refactor auth" --apply --quality
     """
+    # ── Step 0: check provider ──────────────────
+    _check_provider()
+
     # ── Step 1: read diff ──────────────────────
     with _spinner("Reading staged changes…"):
         try:
@@ -157,6 +161,9 @@ def pr(
       synqit pr --base develop
       synqit pr --quality
     """
+    # ── Step 0: check provider ──────────────────
+    _check_provider()
+
     # ── Step 1: read commits ───────────────────
     with _spinner(f"Reading commits since '{base}'…"):
         try:
@@ -191,6 +198,67 @@ def pr(
 # ─────────────────────────────────────────────
 
 @app.command()
+def setup() -> None:
+    """[bold]Initial setup[/bold] to choose AI provider and set API keys."""
+    console.print(SYNQIT_BANNER)
+    console.print("[bold #c9a84c]Welcome to Synqit Setup![/bold #c9a84c]\n")
+
+    # Step 1: Choose provider
+    console.print("Choose your AI provider:")
+    console.print("  [1] Hugging Face (free, lower quality)")
+    console.print("  [2] OpenAI (recommended)")
+    console.print("  [3] Anthropic (recommended)")
+    
+    choice = typer.prompt("\nSelect preference", type=int, default=1)
+    
+    if choice == 1:
+        config.set("ai_provider", "huggingface")
+        key = typer.prompt("Hugging Face API Key (optional, press enter to skip)", default="", show_default=False)
+        if key:
+            config.set("huggingface_api_key", key)
+    elif choice == 2:
+        config.set("ai_provider", "openai")
+        key = typer.prompt("OpenAI API Key")
+        config.set("openai_api_key", key)
+    elif choice == 3:
+        config.set("ai_provider", "anthropic")
+        key = typer.prompt("Anthropic API Key")
+        config.set("anthropic_api_key", key)
+    else:
+        _error("Invalid choice.")
+
+    config.save()
+    console.print("\n[#c9a84c]✔[/#c9a84c] Configuration saved to [bold]~/.synqit.json[/bold]\n")
+
+
+@app.command(name="config")
+def config_cmd(
+    key: Optional[str] = typer.Argument(None, help="Config key to set (e.g. ai_provider)"),
+    value: Optional[str] = typer.Argument(None, help="Value for the key"),
+) -> None:
+    """[bold]Manage configuration[/bold] values directly."""
+    if not key:
+        # Show all config
+        console.print(Panel(
+            json.dumps(config._config, indent=2),
+            title="[#c9a84c]Current Configuration[/#c9a84c]",
+            border_style="#3a3830"
+        ))
+        return
+
+    if not value:
+        # Get specific key
+        val = config.get(key)
+        console.print(f"{key} = {val}")
+        return
+
+    # Set key
+    config.set(key, value)
+    config.save()
+    console.print(f"[#c9a84c]✔[/#c9a84c] Set {key} to {value}")
+
+
+@app.command()
 def version() -> None:
     """Show Synqit version."""
     console.print(f"[#c9a84c]synqit[/#c9a84c] v{__version__}")
@@ -219,6 +287,14 @@ def _error(msg: str) -> None:
         )
     )
     raise typer.Exit(code=1)
+
+
+def _check_provider() -> None:
+    """Show warning if using free provider."""
+    if config.provider == "huggingface":
+        console.print(
+            "  [#c9a84c]⚠️[/#c9a84c] [dim]Using free model (lower quality). For better results, use OpenAI or Anthropic.[/dim]"
+        )
 
 
 # ─────────────────────────────────────────────

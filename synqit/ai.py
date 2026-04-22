@@ -1,39 +1,38 @@
-"""
-ai.py
-Anthropic API calls for Synqit.
-"""
-
 from __future__ import annotations
 
-import os
 from typing import Optional
 
-import anthropic
-
+from synqit.config import config
 from synqit.prompts import (
     COMMIT_SYSTEM,
     PR_SYSTEM,
     commit_user_prompt,
     pr_user_prompt,
 )
+from synqit.providers import (
+    AIProvider,
+    AnthropicProvider,
+    HuggingFaceProvider,
+    OpenAIProvider,
+)
 
-# Model choice: haiku for speed, sonnet for quality
-DEFAULT_MODEL = "claude-haiku-4-5-20251001"
-QUALITY_MODEL = "claude-sonnet-4-6"
-
-MAX_TOKENS = 512
+# Model choices: logic is moving to providers but we still respect quality flag
+# mapping to better models if available.
 
 
-def _get_client() -> anthropic.Anthropic:
-    """Return an Anthropic client, raising a clear error if key is missing."""
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        raise RuntimeError(
-            "ANTHROPIC_API_KEY is not set.\n\n"
-            "  export ANTHROPIC_API_KEY=your_key_here\n\n"
-            "Get your key at: https://console.anthropic.com"
-        )
-    return anthropic.Anthropic(api_key=api_key)
+def get_provider() -> AIProvider:
+    """Return an AIProvider instance based on current configuration."""
+    provider_name = config.provider.lower()
+    
+    if provider_name == "anthropic":
+        return AnthropicProvider(api_key=config.anthropic_api_key)
+    elif provider_name == "openai":
+        return OpenAIProvider(api_key=config.openai_api_key)
+    elif provider_name == "huggingface":
+        return HuggingFaceProvider(api_key=config.huggingface_api_key)
+    else:
+        # Default fallback
+        return HuggingFaceProvider(api_key=config.huggingface_api_key)
 
 
 def generate_commit_message(
@@ -47,24 +46,26 @@ def generate_commit_message(
     Args:
         diff:     Output of `git diff --cached`
         context:  Optional developer intent string
-        quality:  Use Sonnet (slower but higher quality) instead of Haiku
+        quality:  Request higher quality model if provider supports it
 
     Returns:
         The generated commit message as a string.
     """
-    client = _get_client()
-    model = QUALITY_MODEL if quality else DEFAULT_MODEL
-
-    message = client.messages.create(
+    provider = get_provider()
+    
+    # Provider-specific model overrides for 'quality' if needed
+    model = None
+    if quality:
+        if isinstance(provider, AnthropicProvider):
+            model = "claude-3-5-sonnet-20240620"
+        elif isinstance(provider, OpenAIProvider):
+            model = "gpt-4o"
+    
+    return provider.generate(
+        system_prompt=COMMIT_SYSTEM,
+        user_prompt=commit_user_prompt(diff, context),
         model=model,
-        max_tokens=MAX_TOKENS,
-        system=COMMIT_SYSTEM,
-        messages=[
-            {"role": "user", "content": commit_user_prompt(diff, context)}
-        ],
     )
-
-    return _extract_text(message)
 
 
 def generate_pr_description(
@@ -76,33 +77,22 @@ def generate_pr_description(
 
     Args:
         commits:  Output of `git log --oneline`
-        quality:  Use Sonnet instead of Haiku
+        quality:  Request higher quality model if provider supports it
 
     Returns:
         The generated PR description as a markdown string.
     """
-    client = _get_client()
-    model = QUALITY_MODEL if quality else DEFAULT_MODEL
+    provider = get_provider()
+    
+    model = None
+    if quality:
+        if isinstance(provider, AnthropicProvider):
+            model = "claude-3-5-sonnet-20240620"
+        elif isinstance(provider, OpenAIProvider):
+            model = "gpt-4o"
 
-    message = client.messages.create(
+    return provider.generate(
+        system_prompt=PR_SYSTEM,
+        user_prompt=pr_user_prompt(commits),
         model=model,
-        max_tokens=MAX_TOKENS,
-        system=PR_SYSTEM,
-        messages=[
-            {"role": "user", "content": pr_user_prompt(commits)}
-        ],
     )
-
-    return _extract_text(message)
-
-
-# ─────────────────────────────────────────────
-# Internal
-# ─────────────────────────────────────────────
-
-def _extract_text(message: anthropic.types.Message) -> str:
-    """Extract plain text from an Anthropic Message response."""
-    for block in message.content:
-        if block.type == "text":
-            return block.text.strip()
-    return ""
