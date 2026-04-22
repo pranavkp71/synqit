@@ -23,7 +23,7 @@ pip install synqit
 Set your Anthropic API key:
 
 ```bash
-export ANTHROPIC_API_KEY=your_key_here
+
 ```
 
 Get a key at [console.anthropic.com](https://console.anthropic.com).
