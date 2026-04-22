@@ -192,6 +192,16 @@
       transform: translateY(-1px);
     }
 
+    .mobile-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      padding: 4px;
+      z-index: 101;
+    }
+
     /* ── HERO ── */
     .hero {
       position: relative;
@@ -1214,22 +1224,64 @@
     }
 
     /* ── MOBILE ── */
+    @media (max-width: 1024px) {
+
+      .hero-inner,
+      .how-grid,
+      .demo-header,
+      .install-grid {
+        gap: 60px;
+      }
+    }
+
     @media (max-width: 900px) {
       nav {
         padding: 18px 24px;
       }
 
+      .mobile-toggle {
+        display: block;
+      }
+
       .nav-links {
-        display: none;
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 300px;
+        background: var(--surface2);
+        flex-direction: column;
+        padding: 120px 40px;
+        gap: 32px;
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        border-left: 1px solid var(--border);
+        align-items: flex-start;
+        z-index: 100;
+        display: flex;
+        /* Override display: none from previous version if any */
+      }
+
+      .nav-links.active {
+        transform: translateX(0);
       }
 
       .hero {
-        padding: 100px 24px 60px;
+        padding: 120px 24px 60px;
       }
 
       .hero-inner {
         grid-template-columns: 1fr;
         gap: 48px;
+        text-align: center;
+      }
+
+      .hero-sub {
+        margin-inline: auto;
+      }
+
+      .hero-actions {
+        justify-content: center;
       }
 
       .how {
@@ -1288,8 +1340,14 @@
       }
 
       .cs-cmd {
-        min-width: 180px;
+        min-width: 140px;
         font-size: 11px;
+      }
+
+      .orb,
+      .orb2 {
+        width: 400px;
+        height: 400px;
       }
     }
 
@@ -1299,7 +1357,37 @@
       }
 
       .hero-h1 {
-        font-size: 40px;
+        font-size: 42px;
+      }
+
+      .hero-badge {
+        font-size: 10px;
+        margin-bottom: 20px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .btn-primary,
+      .btn-secondary {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .stat-num {
+        font-size: 28px;
+      }
+
+      .section-h2 {
+        font-size: 32px;
+      }
+
+      .demo-tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
       }
     }
   </style>
@@ -1317,12 +1405,20 @@
       <span class="nav-logo-sym">⬡</span>
       synqit
     </a>
-    <div class="nav-links">
+    <div class="nav-links" id="navLinks">
       <a href="#how">How it works</a>
       <a href="#features">Features</a>
       <a href="#install">Install</a>
       <a href="https://github.com/pranavkp71/synqit" class="nav-cta">GitHub ↗</a>
     </div>
+    <button class="mobile-toggle" id="mobileToggle">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
   </nav>
 
   <!-- HERO -->
@@ -1887,7 +1983,7 @@
     function switchTab(name) {
       document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.demo-panel').forEach(p => p.classList.remove('active'));
-      event.target.classList.add('active');
+      event.currentTarget.classList.add('active');
       document.getElementById('panel-' + name).classList.add('active');
     }
 
@@ -1904,6 +2000,21 @@
         }, 1800);
       });
     }
+
+    // Mobile menu toggle
+    const mobileToggle = document.getElementById('mobileToggle');
+    const navLinks = document.getElementById('navLinks');
+
+    mobileToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+    });
+
+    // Close menu on link click
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('active');
+      });
+    });
 
     // Staggered reveal for features
     document.querySelectorAll('.feature-card').forEach((card, i) => {
