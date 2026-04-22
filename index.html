@@ -1321,7 +1321,7 @@
       <a href="#how">How it works</a>
       <a href="#features">Features</a>
       <a href="#install">Install</a>
-      <a href="https://github.com/pranavkp/synqit" class="nav-cta">GitHub ↗</a>
+      <a href="https://github.com/pranavkp71/synqit" class="nav-cta">GitHub ↗</a>
     </div>
   </nav>
 
@@ -1338,7 +1338,7 @@
 
         <p class="hero-sub">
           AI-powered Git assistant in your terminal.<br>
-          Reads your diff. Understands your intent.<br>
+          Works out-of-the-box with free models. Supports OpenAI & Anthropic.<br>
           Ships a clean commit in under 3 seconds.
         </p>
 
@@ -1346,7 +1346,7 @@
           <a class="btn-primary" href="#install">
             pip install synqit →
           </a>
-          <a class="btn-secondary" href="https://github.com/pranavkp/synqit">
+          <a class="btn-secondary" href="https://github.com/pranavkp71/synqit">
             ★ GitHub
           </a>
         </div>
@@ -1510,8 +1510,9 @@
             </svg>
           </div>
           <div>
-            <div class="flow-node-title">Claude AI generates</div>
-            <div class="flow-node-sub">Claude Haiku (fast) or Sonnet (quality)<br>Returns structured commit format</div>
+            <div class="flow-node-title">AI Engine</div>
+            <div class="flow-node-sub">Hugging Face (Free), OpenAI, or Anthropic<br>Returns structured commit format
+            </div>
           </div>
         </div>
         <div class="flow-arrow">↓</div>
@@ -1596,6 +1597,21 @@
           <div class="feature-desc">Reads all commits since your base branch and writes a structured GitHub PR
             description: summary, key changes, and impact.</div>
           <div class="feature-tag">synqit pr</div>
+        </div>
+
+        <div class="feature-card">
+          <span class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" />
+              <path d="M2 17l10 5 10-5" />
+              <path d="M2 12l10 5 10-5" />
+            </svg>
+          </span>
+          <div class="feature-title">Multi-Provider AI</div>
+          <div class="feature-desc">Use Hugging Face for free, or optionally connect OpenAI or Anthropic for higher
+            quality results.</div>
+          <div class="feature-tag">synqit setup</div>
         </div>
       </div>
     </div>
@@ -1766,20 +1782,19 @@
           <div class="install-step">
             <div class="install-step-num">2</div>
             <div class="install-step-content">
-              <div class="install-step-label">Set your API key</div>
-              <div class="install-step-cmd" onclick="copyCmd(this, 'export ANTHROPIC_API_KEY=your_key_here')">
-                <span>export ANTHROPIC_API_KEY=your_key</span>
+              <div class="install-step-label">Setup AI provider</div>
+              <div class="install-step-cmd" onclick="copyCmd(this, 'synqit setup')">
+                <span>synqit setup</span>
                 <span class="copy-btn">copy</span>
               </div>
-              <div class="install-note">Get your key at <a href="https://console.anthropic.com"
-                  style="color:var(--amber)">console.anthropic.com</a></div>
+              <div class="install-note">Choose Hugging Face (free), OpenAI, or Anthropic</div>
             </div>
           </div>
 
           <div class="install-step">
             <div class="install-step-num">3</div>
             <div class="install-step-content">
-              <div class="install-step-label">Stage changes & commit</div>
+              <div class="install-step-label">Stage & commit</div>
               <div class="install-step-cmd" onclick="copyCmd(this, 'git add . && synqit commit --apply')">
                 <span>git add . &amp;&amp; synqit commit --apply</span>
                 <span class="copy-btn">copy</span>
@@ -1793,28 +1808,20 @@
           <div class="cheatsheet-header">Command Reference</div>
           <div class="cheatsheet-body">
             <div class="cs-row">
+              <div class="cs-cmd">synqit setup</div>
+              <div class="cs-desc">Choose provider and set API keys</div>
+            </div>
+            <div class="cs-row">
               <div class="cs-cmd">synqit commit</div>
               <div class="cs-desc">Generate commit from staged diff</div>
-            </div>
-            <div class="cs-row">
-              <div class="cs-cmd">synqit commit -c "why"</div>
-              <div class="cs-desc">Add developer intent to message</div>
-            </div>
-            <div class="cs-row">
-              <div class="cs-cmd">synqit commit --apply</div>
-              <div class="cs-desc">Generate and commit in one step</div>
-            </div>
-            <div class="cs-row">
-              <div class="cs-cmd">synqit commit --quality</div>
-              <div class="cs-desc">Use Claude Sonnet (higher quality)</div>
             </div>
             <div class="cs-row">
               <div class="cs-cmd">synqit pr</div>
               <div class="cs-desc">Generate PR description from commits</div>
             </div>
             <div class="cs-row">
-              <div class="cs-cmd">synqit pr --base develop</div>
-              <div class="cs-desc">Compare against different branch</div>
+              <div class="cs-cmd">synqit config</div>
+              <div class="cs-desc">Manage configuration directly</div>
             </div>
             <div class="cs-row">
               <div class="cs-cmd">synqit version</div>
@@ -1837,7 +1844,7 @@
       </p>
       <div class="cta-actions reveal">
         <a class="btn-primary" href="#install">Get started →</a>
-        <a class="btn-secondary" href="https://github.com/pranavkp/synqit">View on GitHub</a>
+        <a class="btn-secondary" href="https://github.com/pranavkp71/synqit">View on GitHub</a>
       </div>
       <div class="star-cta reveal" style="margin-top:32px">
         If this saves you time, give it a ⭐ on GitHub
@@ -1852,7 +1859,7 @@
     </a>
     <div class="footer-copy">© 2025 Pranav KP · MIT License</div>
     <div class="footer-links">
-      <a href="https://github.com/pranavkp/synqit">GitHub</a>
+      <a href="https://github.com/pranavkp71/synqit">GitHub</a>
       <a href="https://pypi.org/project/synqit">PyPI</a>
       <a href="#">Docs</a>
     </div>
