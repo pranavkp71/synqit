@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "synqit"
-version = "0.1.0"
+version = "0.2.0"
 description = "AI-powered Git assistant. Sync your code with intent."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -35,7 +35,7 @@ synqit = "synqit.cli:app"
 
 [project.urls]
 Homepage = "https://synqit.dev"
-Repository = "https://github.com/pranavkp/synqit"
+Repository = "https://github.com/pranavkp71/synqit"
 
 [tool.setuptools.packages.find]
 where = ["."]

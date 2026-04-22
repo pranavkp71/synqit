@@ -7,6 +7,20 @@ Versions follow [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.2.0] — 2025-04-22
+
+### Added
+- **Multi-Provider AI System** — choose between Hugging Face (default), OpenAI, and Anthropic
+- `synqit setup` — interactive command to choose AI provider and set API keys
+- `synqit config` — manage configuration values directly from the CLI
+- `.env` and `.env.example` support for persistent configuration
+- Enforced API key verification for Hugging Face provider
+
+### Fixed
+- Switched default Hugging Face model to `Qwen/Qwen2.5-7B-Instruct` for better reliability
+- Improved error handling for unsupported models/tasks on the Inference API
+- Fixed repository URLs to point to `pranavkp71/synqit`
+
 ## [0.1.0] — 2025-04-22
 
 ### Added
@@ -21,4 +35,5 @@ Versions follow [Semantic Versioning](https://semver.org/).
 - Anthropic API integration (Haiku by default, Sonnet with `--quality`)
 - Rich terminal output with spinners, panels, and colour
 
-[0.1.0]: https://github.com/pranavkp/synqit/releases/tag/v0.1.0
+[0.2.0]: https://github.com/pranavkp71/synqit/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/pranavkp71/synqit/releases/tag/v0.1.0

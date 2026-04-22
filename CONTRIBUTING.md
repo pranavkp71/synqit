@@ -6,7 +6,7 @@ The following is a set of guidelines for contributing to Synqit.
 
 ## Quick Start
 
-1. Clone the repository: `git clone https://github.com/pranavkp/synqit`
+1. Clone the repository: `git clone https://github.com/pranavkp71/synqit`
 2. Change into the directory: `cd synqit`
 3. Install the package with dev dependencies: `pip install -e ".[dev]"`
 4. Run tests to ensure everything is working: `pytest -v`

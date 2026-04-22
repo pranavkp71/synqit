@@ -20,13 +20,19 @@ Synqit reads your `git diff`, understands what changed, and writes a clean conve
 pip install synqit
 ```
 
-Set your Anthropic API key:
+### Setup
+
+Synqit works out-of-the-box with free models via Hugging Face. Run the interactive setup to choose your AI provider and set your API keys:
 
 ```bash
-
+synqit setup
 ```
 
-Get a key at [console.anthropic.com](https://console.anthropic.com).
+Alternatively, set your keys manually in your environment or a `.env` file:
+
+- `HUGGINGFACE_API_KEY` (Free default)
+- `OPENAI_API_KEY`
+- `ANTHROPIC_API_KEY`
 
 ---
 
@@ -69,11 +75,22 @@ Against a different base branch:
 synqit pr --base develop
 ```
 
-### Higher quality output (uses Claude Sonnet)
+### Higher quality output
+
+If you have configured OpenAI or Anthropic, you can request higher quality models for complex changes:
 
 ```bash
 synqit commit --quality
 synqit pr --quality
+```
+
+### Configuration
+
+View or modify your configuration directly:
+
+```bash
+synqit config
+synqit config ai_provider openai
 ```
 
 ---
@@ -102,14 +119,14 @@ synqit pr --quality
 |--------|-------|-------------|
 | `--context TEXT` | `-c` | Developer intent — WHY the change was made |
 | `--apply` | `-a` | Auto-run `git commit -m` after generation |
-| `--quality` | `-q` | Use Claude Sonnet for higher quality |
+| `--quality` | `-q` | Use premium models (GPT-4o or Claude Sonnet) |
 
 ### `synqit pr`
 
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--base TEXT` | `-b` | Base branch to compare (default: `main`) |
-| `--quality` | `-q` | Use Claude Sonnet for higher quality |
+| `--quality` | `-q` | Use premium models (GPT-4o or Claude Sonnet) |
 
 ---
 
@@ -134,7 +151,8 @@ synqit pr --quality
 
 - [Typer](https://typer.tiangolo.com/) — CLI framework
 - [GitPython](https://gitpython.readthedocs.io/) — Git interaction
-- [Anthropic SDK](https://github.com/anthropic-ai/anthropic-sdk-python) — AI
+- [Hugging Face Hub](https://github.com/huggingface/huggingface_hub) — Default AI Engine
+- [OpenAI](https://github.com/openai/openai-python) & [Anthropic](https://github.com/anthropic-ai/anthropic-sdk-python) SDKs
 - [Rich](https://rich.readthedocs.io/) — Terminal formatting
 
 ---
@@ -142,7 +160,7 @@ synqit pr --quality
 ## Development
 
 ```bash
-git clone https://github.com/pranavkp/synqit
+git clone https://github.com/pranavkp71/synqit
 cd synqit
 pip install -e .
 ```
