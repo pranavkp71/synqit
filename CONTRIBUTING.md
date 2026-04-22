@@ -1,6 +1,6 @@
 # Contributing to Synqit
 
-First off, thanks for taking the time to contribute! 🎉
+First off, thanks for taking the time to contribute
 
 The following is a set of guidelines for contributing to Synqit.
 
