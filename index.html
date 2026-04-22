@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Synqit — Sync your code with intent.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Syne:wght@400;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #090909;
+  --bg2: #0f0f10;
+  --surface: #141416;
+  --surface2: #1a1a1e;
+  --border: #252528;
+  --border-soft: #1c1c20;
+  --text: #ddd9d0;
+  --text-muted: #60607a;
+  --text-dim: #353545;
+  --amber: #c9a84c;
+  --amber-light: #e8c870;
+  --amber-dim: #7a622a;
+  --amber-glow: rgba(201,168,76,0.10);
+  --amber-soft: rgba(201,168,76,0.05);
+  --slate: #8a8a9a;
+  --white: #f0ede6;
+  --cream: #e8e4da;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  overflow-x: hidden;
+  cursor: crosshair;
+}
+
+/* ── NOISE GRAIN ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+}
+
+/* ── GRID BG ── */
+.grid-bg {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-soft) 1px, transparent 1px);
+  background-size: 48px 48px;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── AMBER ORB ── */
+.orb {
+  position: fixed;
+  width: 800px;
+  height: 800px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 65%);
+  top: -200px;
+  right: -200px;
+  pointer-events: none;
+  z-index: 0;
+  animation: orbFloat 16s ease-in-out infinite alternate;
+}
+
+.orb2 {
+  position: fixed;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,0.04) 0%, transparent 65%);
+  bottom: -100px;
+  left: -100px;
+  pointer-events: none;
+  z-index: 0;
+  animation: orbFloat 20s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes orbFloat {
+  from { transform: translate(0,0) scale(1); }
+  to { transform: translate(-40px, 60px) scale(1.08); }
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 20px 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.5s, border-color 0.5s, backdrop-filter 0.5s;
+  border-bottom: 1px solid transparent;
+}
+
+nav.scrolled {
+  background: rgba(9,9,9,0.88);
+  border-color: var(--border);
+  backdrop-filter: blur(24px);
+}
+
+.nav-logo {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--white);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.01em;
+}
+
+.nav-logo-sym {
+  color: var(--amber);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+}
+
+.nav-links a {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-muted);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--amber); }
+
+.nav-cta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--bg) !important;
+  background: var(--amber);
+  padding: 8px 18px;
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: background 0.2s, transform 0.1s !important;
+}
+
+.nav-cta:hover {
+  background: var(--amber-light) !important;
+  color: var(--bg) !important;
+  transform: translateY(-1px);
+}
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 140px 56px 80px;
+  overflow: hidden;
+}
+
+.hero-inner {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.hero-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--amber);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.1s forwards;
+}
+
+.hero-badge::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--amber);
+}
+
+.hero-h1 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(48px, 5.5vw, 80px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.05;
+  color: var(--white);
+  letter-spacing: -0.02em;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.2s forwards;
+  margin-bottom: 12px;
+}
+
+.hero-h1 em {
+  font-style: normal;
+  color: var(--amber);
+  font-weight: 300;
+}
+
+.hero-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--slate);
+  line-height: 1.8;
+  max-width: 420px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.35s forwards;
+  margin-bottom: 44px;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.5s forwards;
+}
+
+.btn-primary {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--bg);
+  background: var(--amber);
+  padding: 14px 28px;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: background 0.2s, transform 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  background: var(--amber-light);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 2px;
+  transition: color 0.2s, border-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-secondary:hover {
+  color: var(--amber);
+  border-color: var(--amber-dim);
+}
+
+/* ── TERMINAL WINDOW ── */
+.terminal-wrap {
+  opacity: 0;
+  animation: fadeIn 1s 0.6s forwards;
+  position: relative;
+}
+
+.terminal-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(135deg, var(--amber-dim) 0%, transparent 50%, transparent 100%);
+  z-index: -1;
+  opacity: 0.4;
+}
+
+.terminal {
+  background: #0a0a0b;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+}
+
+.terminal-bar {
+  background: var(--surface2);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-1 { background: #3a3a3a; }
+.dot-2 { background: #3a3a3a; }
+.dot-3 { background: #3a3a3a; }
+
+.terminal-title {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  margin-left: 8px;
+}
+
+.terminal-body {
+  padding: 24px;
+  line-height: 1.8;
+  min-height: 320px;
+}
+
+.t-line { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+
+.t-prompt { color: var(--amber); user-select: none; flex-shrink: 0; }
+
+.t-cmd { color: var(--cream); }
+
+.t-dim { color: var(--text-muted); }
+.t-comment { color: var(--text-dim); font-style: italic; }
+.t-success { color: #a8c09a; }
+.t-highlight { color: var(--amber-light); }
+.t-blank { height: 8px; }
+
+.typing {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid var(--amber);
+  width: 0;
+  animation: typeReveal 1.2s steps(30) forwards;
+}
+
+.typing-2 { animation-delay: 1.4s; }
+.typing-3 { animation-delay: 2.8s; }
+
+@keyframes typeReveal {
+  to { width: 100%; border-right-color: transparent; }
+}
+
+/* ── STATS BAR ── */
+.stats-bar {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.stat-item {
+  flex: 1;
+  padding: 32px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-right: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+
+.stat-item:last-child { border-right: none; }
+
+.stat-item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--amber);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s;
+}
+
+.stat-item:hover::before { transform: scaleX(1); }
+.stat-item:hover { background: var(--surface2); }
+
+.stat-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--amber);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.stat-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── SECTION ── */
+section {
+  position: relative;
+  z-index: 1;
+}
+
+.section-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--amber);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  max-width: 60px;
+}
+
+.section-h2 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(36px, 4vw, 58px);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--white);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+
+.section-h2 strong {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--amber);
+}
+
+/* ── HOW IT WORKS ── */
+.how {
+  padding: 120px 56px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.how-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.step {
+  display: flex;
+  gap: 28px;
+  padding: 32px 0;
+  border-bottom: 1px solid var(--border-soft);
+  cursor: default;
+  transition: padding-left 0.3s;
+}
+
+.step:first-child { padding-top: 0; }
+.step:last-child { border-bottom: none; }
+.step:hover { padding-left: 8px; }
+
+.step-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--amber-dim);
+  font-weight: 500;
+  flex-shrink: 0;
+  padding-top: 4px;
+  letter-spacing: 0.05em;
+}
+
+.step-content {}
+
+.step-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+.step-desc {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  color: var(--slate);
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+/* ── FLOW DIAGRAM ── */
+.flow-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  position: relative;
+  overflow: hidden;
+}
+
+.flow-diagram::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--amber) 0%, var(--amber-dim) 100%);
+}
+
+.flow-node {
+  padding: 24px 28px 24px 36px;
+  border-bottom: 1px solid var(--border-soft);
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  transition: background 0.2s;
+}
+
+.flow-node:last-child { border-bottom: none; }
+.flow-node:hover { background: var(--surface2); }
+
+.flow-icon {
+  flex-shrink: 0;
+  color: var(--amber);
+  opacity: 0.75;
+  margin-top: 2px;
+}
+
+.flow-icon svg { display: block; }
+
+.flow-node-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--amber-light);
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+}
+
+.flow-node-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+.flow-arrow {
+  text-align: left;
+  padding: 8px 28px 8px 36px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 16px;
+  color: var(--amber-dim);
+}
+
+/* ── FEATURES ── */
+.features {
+  padding: 0 56px 120px;
+}
+
+.features-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 64px;
+}
+
+.feature-card {
+  background: var(--surface);
+  padding: 40px 32px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+
+.feature-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--amber);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s;
+}
+
+.feature-card:hover { background: var(--surface2); }
+.feature-card:hover::after { transform: scaleX(1); }
+
+.feature-icon {
+  display: block;
+  margin-bottom: 20px;
+  color: var(--amber);
+  opacity: 0.85;
+}
+
+.feature-icon svg { display: block; }
+
+.feature-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -0.01em;
+  margin-bottom: 12px;
+}
+
+.feature-desc {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--slate);
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+.feature-tag {
+  display: inline-block;
+  margin-top: 16px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--amber);
+  background: var(--amber-soft);
+  padding: 4px 10px;
+  letter-spacing: 0.05em;
+}
+
+/* ── DEMO SECTION ── */
+.demo-section {
+  padding: 0 56px 120px;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.demo-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: 100px;
+}
+
+.demo-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+  margin-bottom: 60px;
+}
+
+.demo-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+
+.demo-tab {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 12px 20px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.2s, border-color 0.2s;
+  user-select: none;
+  letter-spacing: 0.05em;
+}
+
+.demo-tab:hover { color: var(--text); }
+.demo-tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+
+.demo-panels {}
+
+.demo-panel {
+  display: none;
+}
+
+.demo-panel.active { display: block; }
+
+.big-terminal {
+  background: #080808;
+  border: 1px solid var(--border);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+}
+
+.big-terminal-bar {
+  background: var(--surface2);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.big-terminal-body {
+  padding: 28px;
+  line-height: 2;
+}
+
+/* ── INSTALL ── */
+.install-section {
+  padding: 120px 56px;
+}
+
+.install-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.install-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 80px;
+  align-items: start;
+  margin-top: 64px;
+}
+
+.install-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.install-step {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.install-step-num {
+  width: 32px;
+  height: 32px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--amber);
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.install-step-content {}
+
+.install-step-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+
+.install-step-cmd {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 12px 16px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  color: var(--amber-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.install-step-cmd:hover { border-color: var(--amber-dim); }
+
+.copy-btn {
+  font-size: 11px;
+  color: var(--text-dim);
+  transition: color 0.2s;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.install-step-cmd:hover .copy-btn { color: var(--amber); }
+
+.install-note {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  font-style: italic;
+}
+
+/* ── CHEAT SHEET ── */
+.cheatsheet {
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.cheatsheet-header {
+  background: var(--surface2);
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--amber);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.cheatsheet-body {
+  padding: 8px 0;
+}
+
+.cs-row {
+  padding: 14px 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  border-bottom: 1px solid var(--border-soft);
+  transition: background 0.2s;
+}
+
+.cs-row:last-child { border-bottom: none; }
+.cs-row:hover { background: var(--surface2); }
+
+.cs-cmd {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--amber-light);
+  font-weight: 500;
+  min-width: 260px;
+  flex-shrink: 0;
+}
+
+.cs-desc {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--slate);
+  font-weight: 300;
+}
+
+/* ── CTA FOOTER ── */
+.cta-section {
+  padding: 120px 56px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-section::before {
+  content: 'SYNQIT';
+  position: absolute;
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(120px, 16vw, 220px);
+  font-weight: 800;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--border);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  pointer-events: none;
+  letter-spacing: -0.05em;
+  opacity: 0.5;
+}
+
+.cta-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.cta-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--amber);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.cta-h2 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--white);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+}
+
+.cta-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  color: var(--slate);
+  margin-bottom: 48px;
+  line-height: 1.7;
+}
+
+.cta-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.star-cta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 32px;
+  letter-spacing: 0.05em;
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-logo {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  color: var(--text-muted);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-logo span { color: var(--amber); }
+
+.footer-copy {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-links a {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--amber); }
+
+/* ── SCROLL REVEAL ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.8s, transform 0.8s;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── SCANLINE on terminal ── */
+.terminal::after,
+.big-terminal::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+}
+
+.terminal, .big-terminal { position: relative; }
+
+/* ── CURSOR BLINK ── */
+.cursor {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: var(--amber);
+  vertical-align: middle;
+  animation: blink 1.2s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ── MOBILE ── */
+@media (max-width: 900px) {
+  nav { padding: 18px 24px; }
+  .nav-links { display: none; }
+  .hero { padding: 100px 24px 60px; }
+  .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+  .how { padding: 80px 24px; }
+  .how-grid { grid-template-columns: 1fr; gap: 48px; }
+  .features { padding: 0 24px 80px; }
+  .features-grid { grid-template-columns: 1fr 1fr; }
+  .demo-section { padding: 0 24px 80px; }
+  .demo-header { grid-template-columns: 1fr; gap: 40px; }
+  .install-section { padding: 80px 24px; }
+  .install-grid { grid-template-columns: 1fr; gap: 48px; }
+  .stats-bar { flex-direction: column; }
+  .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
+  .cta-section { padding: 80px 24px; }
+  footer { padding: 24px; flex-direction: column; gap: 16px; text-align: center; }
+  .cs-cmd { min-width: 180px; font-size: 11px; }
+}
+
+@media (max-width: 600px) {
+  .features-grid { grid-template-columns: 1fr; }
+  .hero-h1 { font-size: 40px; }
+}
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="orb"></div>
+<div class="orb2"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo" href="#">
+    <span class="nav-logo-sym">⬡</span>
+    synqit
+  </a>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#install">Install</a>
+    <a href="https://github.com" class="nav-cta">GitHub ↗</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-badge">v0.1.0 — Open source</div>
+
+      <h1 class="hero-h1">
+        Sync your code<br>
+        with <em>intent.</em>
+      </h1>
+
+      <p class="hero-sub">
+        AI-powered Git assistant in your terminal.<br>
+        Reads your diff. Understands your intent.<br>
+        Ships a clean commit in under 3 seconds.
+      </p>
+
+      <div class="hero-actions">
+        <a class="btn-primary" href="#install">
+          pip install synqit →
+        </a>
+        <a class="btn-secondary" href="https://github.com">
+          ★ GitHub
+        </a>
+      </div>
+    </div>
+
+    <div class="terminal-wrap">
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="dot dot-1"></div>
+          <div class="dot dot-2"></div>
+          <div class="dot dot-3"></div>
+          <span class="terminal-title">synqit — zsh</span>
+        </div>
+        <div class="terminal-body">
+          <div class="t-line">
+            <span class="t-prompt">~/myapp $</span>
+            <span class="t-cmd">git add auth/session.py</span>
+          </div>
+          <div class="t-line">
+            <span class="t-prompt">~/myapp $</span>
+            <span class="t-cmd">synqit commit -c "fix login timeout" --apply</span>
+          </div>
+          <div class="t-blank"></div>
+          <div class="t-line">
+            <span class="t-dim">⠋ Reading staged changes…</span>
+          </div>
+          <div class="t-line">
+            <span class="t-dim">⠙ Generating context-aware commit message…</span>
+          </div>
+          <div class="t-blank"></div>
+          <div class="t-line">
+            <span style="color:var(--amber)">╭─ ✦ Commit Message ─────────────────────────╮</span>
+          </div>
+          <div class="t-line">
+            <span style="color:var(--amber)">│</span>
+            <span class="t-highlight">&nbsp;fix(auth): resolve login timeout on expiry</span>
+          </div>
+          <div class="t-line"><span style="color:var(--amber)">│</span></div>
+          <div class="t-line">
+            <span style="color:var(--amber)">│</span>
+            <span class="t-dim">&nbsp;- Validate session token on each request</span>
+          </div>
+          <div class="t-line">
+            <span style="color:var(--amber)">│</span>
+            <span class="t-dim">&nbsp;- Handle expiry edge case gracefully</span>
+          </div>
+          <div class="t-line">
+            <span style="color:var(--amber)">╰────────────────────────────────────────────╯</span>
+          </div>
+          <div class="t-blank"></div>
+          <div class="t-line">
+            <span class="t-success">✔&nbsp; Committed successfully.</span>
+          </div>
+          <div class="t-line">
+            <span class="t-prompt">~/myapp $</span>
+            <span class="cursor"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar reveal">
+  <div class="stat-item">
+    <div class="stat-num">&lt; 3s</div>
+    <div class="stat-label">commit generated</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">100%</div>
+    <div class="stat-label">conventional commits</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">0</div>
+    <div class="stat-label">copy-paste with --apply</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">2 cmds</div>
+    <div class="stat-label">commit + pr — that's all</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how" id="how">
+  <div class="how-grid">
+    <div>
+      <div class="section-label reveal">How it works</div>
+      <h2 class="section-h2 reveal">Three steps.<br><strong>Zero friction.</strong></h2>
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--slate);line-height:1.9;max-width:420px;font-weight:300;" class="reveal">
+        Synqit removes the gap between what you built and what you communicate about it. Stage your changes, describe your intent, and let the AI do the writing.
+      </p>
+
+      <div class="steps reveal" style="margin-top:48px">
+        <div class="step">
+          <div class="step-num">01 ─</div>
+          <div class="step-content">
+            <div class="step-title">Stage your changes</div>
+            <div class="step-desc">Run <code style="color:var(--amber-light)">git add</code> as usual. Synqit reads the cached diff — exactly what's going into your next commit.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">02 ─</div>
+          <div class="step-content">
+            <div class="step-title">Add your intent (optional)</div>
+            <div class="step-desc">Pass <code style="color:var(--amber-light)">-c "why you changed it"</code> to produce intent-aware messages that go beyond just what the diff says.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">03 ─</div>
+          <div class="step-content">
+            <div class="step-title">Get a clean commit</div>
+            <div class="step-desc">Claude AI returns a structured Conventional Commit. Use <code style="color:var(--amber-light)">--apply</code> to commit in one shot, no copy-paste.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-diagram reveal">
+      <div class="flow-node">
+        <div class="flow-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"/>
+            <polyline points="8 6 2 12 8 18"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flow-node-title">git diff --cached</div>
+          <div class="flow-node-sub">Reads exactly what's staged.<br>Truncates large diffs automatically.</div>
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node">
+        <div class="flow-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flow-node-title">Context merge</div>
+          <div class="flow-node-sub">WHAT changed (diff) + WHY (your intent)<br>→ structured prompt to Claude</div>
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node">
+        <div class="flow-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flow-node-title">Claude AI generates</div>
+          <div class="flow-node-sub">Claude Haiku (fast) or Sonnet (quality)<br>Returns structured commit format</div>
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node">
+        <div class="flow-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flow-node-title">Clean output</div>
+          <div class="flow-node-sub">Conventional commit, ready to use.<br>Or auto-committed with --apply.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="features-inner">
+    <div class="section-label reveal">Features</div>
+    <h2 class="section-h2 reveal">Built for the<br><strong>daily workflow.</strong></h2>
+
+    <div class="features-grid reveal">
+      <div class="feature-card">
+        <span class="feature-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+        </span>
+        <div class="feature-title">Instant Commit Messages</div>
+        <div class="feature-desc">Stage your changes and get a precise, well-formed commit message in under 3 seconds. No tab-switching, no thinking.</div>
+        <div class="feature-tag">synqit commit</div>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            <line x1="9" y1="10" x2="9" y2="10" stroke-width="2"/>
+            <line x1="12" y1="10" x2="12" y2="10" stroke-width="2"/>
+            <line x1="15" y1="10" x2="15" y2="10" stroke-width="2"/>
+          </svg>
+        </span>
+        <div class="feature-title">Context-Aware</div>
+        <div class="feature-desc">Pass your intent with <code style="color:var(--amber-light)">-c</code>. The AI combines the WHAT from your diff with the WHY from you — messages that actually make sense.</div>
+        <div class="feature-tag">--context</div>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 11 12 14 22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+        </span>
+        <div class="feature-title">Auto Commit</div>
+        <div class="feature-desc">Use <code style="color:var(--amber-light)">--apply</code> to skip copy-paste entirely. Synqit generates and commits in a single command. Git hooks still fire.</div>
+        <div class="feature-tag">--apply</div>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+        </span>
+        <div class="feature-title">PR Descriptions</div>
+        <div class="feature-desc">Reads all commits since your base branch and writes a structured GitHub PR description: summary, key changes, and impact.</div>
+        <div class="feature-tag">synqit pr</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section class="demo-section" id="demo">
+  <div class="demo-inner">
+    <div class="demo-header">
+      <div>
+        <div class="section-label reveal">Live demo</div>
+        <h2 class="section-h2 reveal">See it in<br><strong>action.</strong></h2>
+        <p style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--slate);line-height:1.9;font-weight:300;" class="reveal">
+          Real terminal output from Synqit. No staging, no marketing speak. This is exactly what you'll see in your terminal after install.
+        </p>
+      </div>
+
+      <div class="reveal">
+        <div class="demo-tabs">
+          <div class="demo-tab active" onclick="switchTab('commit')">synqit commit</div>
+          <div class="demo-tab" onclick="switchTab('context')">with --context</div>
+          <div class="demo-tab" onclick="switchTab('pr')">synqit pr</div>
+        </div>
+
+        <div class="demo-panels">
+          <!-- commit -->
+          <div class="demo-panel active" id="panel-commit">
+            <div class="big-terminal">
+              <div class="big-terminal-bar">
+                <div class="dot dot-1"></div><div class="dot dot-2"></div><div class="dot dot-3"></div>
+                <span class="terminal-title">synqit — zsh</span>
+              </div>
+              <div class="big-terminal-body">
+                <div class="t-line"><span class="t-prompt">$</span><span class="t-cmd">synqit commit</span></div>
+                <div class="t-blank"></div>
+                <div class="t-line"><span class="t-dim">⠿ Reading staged changes…</span></div>
+                <div class="t-line"><span class="t-dim">⠿ Generating commit message…</span></div>
+                <div class="t-blank"></div>
+                <div class="t-line"><span style="color:var(--amber)">╭─ ✦ Commit Message ──────────────────────────────╮</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-highlight">&nbsp;refactor(db): extract connection pool to module</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-dim">&nbsp;- Move DB pool config out of app entrypoint</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-dim">&nbsp;- Centralise connection settings in db/pool.py</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-dim">&nbsp;- Simplify app.py startup sequence</span></div>
+                <div class="t-line"><span style="color:var(--amber)">╰─────────────────────────────────────────────────╯</span></div>
+                <div class="t-blank"></div>
+                <div class="t-line"><span class="t-dim">Run with --apply to commit automatically.</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- context -->
+          <div class="demo-panel" id="panel-context">
+            <div class="big-terminal">
+              <div class="big-terminal-bar">
+                <div class="dot dot-1"></div><div class="dot dot-2"></div><div class="dot dot-3"></div>
+                <span class="terminal-title">synqit — zsh</span>
+              </div>
+              <div class="big-terminal-body">
+                <div class="t-line"><span class="t-prompt">$</span><span class="t-cmd">synqit commit -c "fix login timeout bug" --apply</span></div>
+                <div class="t-blank"></div>
+                <div class="t-line"><span class="t-dim">⠿ Reading staged changes…</span></div>
+                <div class="t-line"><span class="t-dim">⠿ Generating context-aware commit message…</span></div>
+                <div class="t-blank"></div>
+                <div class="t-line"><span style="color:var(--amber)">╭─ ✦ Commit Message ──────────────────────────────╮</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-highlight">&nbsp;fix(auth): resolve login timeout on session expiry</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-dim">&nbsp;- Validate token expiry before each request check</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-dim">&nbsp;- Handle edge case where refresh token is stale</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-dim">&nbsp;- Improve error messaging on session timeout</span></div>
+                <div class="t-line"><span style="color:var(--amber)">╰─────────────────────────────────────────────────╯</span></div>
+                <div class="t-blank"></div>
+                <div class="t-line"><span class="t-dim">intent: fix login timeout bug</span></div>
+                <div class="t-blank"></div>
+                <div class="t-line"><span class="t-success">✔&nbsp; Committed successfully.</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- pr -->
+          <div class="demo-panel" id="panel-pr">
+            <div class="big-terminal">
+              <div class="big-terminal-bar">
+                <div class="dot dot-1"></div><div class="dot dot-2"></div><div class="dot dot-3"></div>
+                <span class="terminal-title">synqit — zsh</span>
+              </div>
+              <div class="big-terminal-body">
+                <div class="t-line"><span class="t-prompt">$</span><span class="t-cmd">synqit pr --base main</span></div>
+                <div class="t-blank"></div>
+                <div class="t-line"><span class="t-dim">⠿ Reading commits since 'main'…</span></div>
+                <div class="t-line"><span class="t-dim">⠿ Generating PR description…</span></div>
+                <div class="t-blank"></div>
+                <div class="t-line"><span style="color:var(--amber)">╭─ ✦ PR Description ──────────────────────────────╮</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-highlight">&nbsp;## Summary</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-dim">&nbsp;Overhaul the auth module to fix session handling</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-dim">&nbsp;and improve reliability across all login flows.</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-highlight">&nbsp;## Key Changes</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-dim">&nbsp;- Fix session timeout edge case in login flow</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-dim">&nbsp;- Refactor DB pool to dedicated module</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-dim">&nbsp;- Add refresh token fallback logic</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-highlight">&nbsp;## Impact</span></div>
+                <div class="t-line"><span style="color:var(--amber)">│</span><span class="t-dim">&nbsp;Users will no longer be dropped on token expiry.</span></div>
+                <div class="t-line"><span style="color:var(--amber)">╰─────────────────────────────────────────────────╯</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSTALL -->
+<section class="install-section" id="install">
+  <div class="install-inner">
+    <div class="section-label reveal">Get started</div>
+    <h2 class="section-h2 reveal">Up and running<br><strong>in 60 seconds.</strong></h2>
+
+    <div class="install-grid">
+      <div class="install-steps reveal">
+        <div class="install-step">
+          <div class="install-step-num">1</div>
+          <div class="install-step-content">
+            <div class="install-step-label">Install via pip</div>
+            <div class="install-step-cmd" onclick="copyCmd(this, 'pip install synqit')">
+              <span>pip install synqit</span>
+              <span class="copy-btn">copy</span>
+            </div>
+            <div class="install-note">Requires Python 3.10+</div>
+          </div>
+        </div>
+
+        <div class="install-step">
+          <div class="install-step-num">2</div>
+          <div class="install-step-content">
+            <div class="install-step-label">Set your API key</div>
+            <div class="install-step-cmd" onclick="copyCmd(this, 'export ANTHROPIC_API_KEY=your_key_here')">
+              <span>export ANTHROPIC_API_KEY=your_key</span>
+              <span class="copy-btn">copy</span>
+            </div>
+            <div class="install-note">Get your key at <a href="https://console.anthropic.com" style="color:var(--amber)">console.anthropic.com</a></div>
+          </div>
+        </div>
+
+        <div class="install-step">
+          <div class="install-step-num">3</div>
+          <div class="install-step-content">
+            <div class="install-step-label">Stage changes & commit</div>
+            <div class="install-step-cmd" onclick="copyCmd(this, 'git add . && synqit commit --apply')">
+              <span>git add . &amp;&amp; synqit commit --apply</span>
+              <span class="copy-btn">copy</span>
+            </div>
+            <div class="install-note">That's it. You're shipping better commits.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cheatsheet reveal">
+        <div class="cheatsheet-header">Command Reference</div>
+        <div class="cheatsheet-body">
+          <div class="cs-row">
+            <div class="cs-cmd">synqit commit</div>
+            <div class="cs-desc">Generate commit from staged diff</div>
+          </div>
+          <div class="cs-row">
+            <div class="cs-cmd">synqit commit -c "why"</div>
+            <div class="cs-desc">Add developer intent to message</div>
+          </div>
+          <div class="cs-row">
+            <div class="cs-cmd">synqit commit --apply</div>
+            <div class="cs-desc">Generate and commit in one step</div>
+          </div>
+          <div class="cs-row">
+            <div class="cs-cmd">synqit commit --quality</div>
+            <div class="cs-desc">Use Claude Sonnet (higher quality)</div>
+          </div>
+          <div class="cs-row">
+            <div class="cs-cmd">synqit pr</div>
+            <div class="cs-desc">Generate PR description from commits</div>
+          </div>
+          <div class="cs-row">
+            <div class="cs-cmd">synqit pr --base develop</div>
+            <div class="cs-desc">Compare against different branch</div>
+          </div>
+          <div class="cs-row">
+            <div class="cs-cmd">synqit version</div>
+            <div class="cs-desc">Show current version</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-eyebrow reveal">Open source</div>
+    <h2 class="cta-h2 reveal">Stop writing<br>commit messages.</h2>
+    <p class="cta-sub reveal">
+      Built by a developer, for developers.<br>
+      If it saves you time every day — share it with someone who needs it.
+    </p>
+    <div class="cta-actions reveal">
+      <a class="btn-primary" href="#install">Get started →</a>
+      <a class="btn-secondary" href="https://github.com">View on GitHub</a>
+    </div>
+    <div class="star-cta reveal" style="margin-top:32px">
+      If this saves you time, give it a ⭐ on GitHub
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a class="footer-logo" href="#">
+    <span>⬡</span> synqit
+  </a>
+  <div class="footer-copy">© 2025 Pranav KP · MIT License</div>
+  <div class="footer-links">
+    <a href="https://github.com">GitHub</a>
+    <a href="https://pypi.org">PyPI</a>
+    <a href="#">Docs</a>
+  </div>
+</footer>
+
+<script>
+// Nav scroll
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.12 });
+reveals.forEach(el => observer.observe(el));
+
+// Demo tabs
+function switchTab(name) {
+  document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.demo-panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+// Copy commands
+function copyCmd(el, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = el.querySelector('.copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = 'copied!';
+    btn.style.color = 'var(--amber)';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.color = '';
+    }, 1800);
+  });
+}
+
+// Staggered reveal for features
+document.querySelectorAll('.feature-card').forEach((card, i) => {
+  card.style.transitionDelay = (i * 0.08) + 's';
+});
+</script>
+</body>
+</html>

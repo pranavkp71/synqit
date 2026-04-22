@@ -1,0 +1,158 @@
+# Synqit — Sync your code with intent.
+
+> AI-powered Git assistant in your terminal. Instant commit messages. Smart PR descriptions.
+
+[![PyPI](https://img.shields.io/pypi/v/synqit?color=c9a84c&labelColor=111&label=PyPI)](https://pypi.org/project/synqit)
+[![Python](https://img.shields.io/badge/python-3.10%2B-c9a84c?labelColor=111)](https://python.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-c9a84c?labelColor=111)](LICENSE)
+
+---
+
+## What is Synqit?
+
+Synqit reads your `git diff`, understands what changed, and writes a clean conventional commit message in under 3 seconds. You focus on code. Synqit writes the message.
+
+---
+
+## Install
+
+```bash
+pip install synqit
+```
+
+Set your Anthropic API key:
+
+```bash
+export ANTHROPIC_API_KEY=your_key_here
+```
+
+Get a key at [console.anthropic.com](https://console.anthropic.com).
+
+---
+
+## Usage
+
+### Generate a commit message
+
+```bash
+git add .
+synqit commit
+```
+
+### Add your intent (context-aware)
+
+```bash
+synqit commit -c "fix login timeout bug"
+```
+
+### Auto-commit (no copy-paste)
+
+```bash
+synqit commit --apply
+```
+
+### Combine everything
+
+```bash
+synqit commit -c "refactor user auth module" --apply
+```
+
+### Generate a PR description
+
+```bash
+synqit pr
+```
+
+Against a different base branch:
+
+```bash
+synqit pr --base develop
+```
+
+### Higher quality output (uses Claude Sonnet)
+
+```bash
+synqit commit --quality
+synqit pr --quality
+```
+
+---
+
+## Output example
+
+```
+╭─ ✦ Commit Message ─────────────────────────────────────────╮
+│                                                              │
+│  fix(auth): resolve login timeout caused by session expiry  │
+│                                                              │
+│  - Improve session token validation on every request        │
+│  - Handle edge case where token expiry is not checked       │
+│  - Add fallback to refresh token when session expires       │
+│                                                              │
+╰──────────────────────────────────────────────────────────────╯
+```
+
+---
+
+## Options
+
+### `synqit commit`
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--context TEXT` | `-c` | Developer intent — WHY the change was made |
+| `--apply` | `-a` | Auto-run `git commit -m` after generation |
+| `--quality` | `-q` | Use Claude Sonnet for higher quality |
+
+### `synqit pr`
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--base TEXT` | `-b` | Base branch to compare (default: `main`) |
+| `--quality` | `-q` | Use Claude Sonnet for higher quality |
+
+---
+
+## How it works
+
+1. **Read** — Synqit reads your staged diff (`git diff --cached`) or commit log
+2. **Understand** — The diff + your intent is sent to Claude AI
+3. **Generate** — Claude returns a structured Conventional Commit message
+4. **Apply** — Optionally commits directly with `--apply`
+
+---
+
+## Requirements
+
+- Python 3.10+
+- Git repository
+- `ANTHROPIC_API_KEY` set in your environment
+
+---
+
+## Tech Stack
+
+- [Typer](https://typer.tiangolo.com/) — CLI framework
+- [GitPython](https://gitpython.readthedocs.io/) — Git interaction
+- [Anthropic SDK](https://github.com/anthropic-ai/anthropic-sdk-python) — AI
+- [Rich](https://rich.readthedocs.io/) — Terminal formatting
+
+---
+
+## Development
+
+```bash
+git clone https://github.com/pranavkp/synqit
+cd synqit
+pip install -e .
+```
+
+---
+
+## License
+
+MIT — built by [Pranav KP](https://github.com/pranavkp)
+
+---
+
+> Ship fast. Solve real pain. Improve through usage.
