@@ -7,7 +7,7 @@ Versions follow [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [0.2.0] — 2025-04-22
+## [0.2.0] — 2026-04-22
 
 ### Added
 - **Multi-Provider AI System** — choose between Hugging Face (default), OpenAI, and Anthropic
@@ -21,7 +21,7 @@ Versions follow [Semantic Versioning](https://semver.org/).
 - Improved error handling for unsupported models/tasks on the Inference API
 - Fixed repository URLs to point to `pranavkp71/synqit`
 
-## [0.1.0] — 2025-04-22
+## [0.1.0] — 2026-04-22
 
 ### Added
 - `synqit commit` — generate Conventional Commit messages from staged diffs
