@@ -167,10 +167,4 @@ pip install -e .
 
 ---
 
-## License
-
-MIT — built by [Pranav KP](https://github.com/pranavkp)
-
----
-
 > Ship fast. Solve real pain. Improve through usage.
