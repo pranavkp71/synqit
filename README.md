@@ -82,6 +82,15 @@ If you have configured OpenAI or Anthropic, you can request higher quality model
 ```bash
 synqit commit --quality
 synqit pr --quality
+synqit review --quality
+```
+
+### Analyze staged changes (AI Review)
+
+Get instant feedback on risks, security, and missing tests before you commit:
+
+```bash
+synqit review
 ```
 
 ### Configuration
@@ -126,6 +135,12 @@ synqit config ai_provider openai
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--base TEXT` | `-b` | Base branch to compare (default: `main`) |
+| `--quality` | `-q` | Use premium models (GPT-4o or Claude Sonnet) |
+
+### `synqit review`
+
+| Option | Short | Description |
+|--------|-------|-------------|
 | `--quality` | `-q` | Use premium models (GPT-4o or Claude Sonnet) |
 
 ---
