@@ -7,6 +7,16 @@ Versions follow [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.3.0] — 2026-05-08
+
+### Added
+- **`synqit review`** — AI-powered risk analysis for staged changes
+  - Heuristic detection for security, database, and testing risks
+  - High-level AI review from an "AI Staff Engineer" persona
+  - Polished terminal-profile UI with risk levels and icons
+  - Supports `--quality / -q` for premium model insights
+- **Developer Tools** — unit tests for risk heuristics in `tests/test_analyzer.py`
+
 ## [0.2.0] — 2026-04-22
 
 ### Added
