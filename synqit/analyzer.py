@@ -32,10 +32,10 @@ class HeuristicAnalyzer:
     """Analyze git diffs for common risks using simple heuristics."""
 
     AUTH_KEYWORDS = {
-        "auth", "login", "session", "token", "password", 
+        "auth", "login", "session", "token", "password",
         "security", "middleware", "jwt", "cookie", "oauth"
     }
-    
+
     ENV_KEYWORDS = {
         ".env", "config.py", "settings.py", "credentials", "secrets"
     }
@@ -46,19 +46,19 @@ class HeuristicAnalyzer:
 
     def analyze(self) -> Analysis:
         analysis = Analysis()
-        
+
         # Run checks
         self._check_auth_changes(analysis)
         self._check_migrations(analysis)
         self._check_env_changes(analysis)
         self._check_missing_tests(analysis)
         self._check_large_deletions(analysis)
-        
+
         # Calculate score (simple heuristic)
         high_risks = sum(1 for r in analysis.results if r.risk_level == "High")
         med_risks = sum(1 for r in analysis.results if r.risk_level == "Medium")
         analysis.score = min(100, (high_risks * 40) + (med_risks * 15))
-        
+
         return analysis
 
     def _check_auth_changes(self, analysis: Analysis):
@@ -91,9 +91,12 @@ class HeuristicAnalyzer:
                 return
 
     def _check_missing_tests(self, analysis: Analysis):
-        code_files = [f for f in self.changed_files if f.endswith(".py") and "test" not in f.lower()]
+        code_files = [
+            f for f in self.changed_files 
+            if f.endswith(".py") and "test" not in f.lower()
+        ]
         test_files = [f for f in self.changed_files if "test" in f.lower()]
-        
+
         if code_files and not test_files:
             analysis.results.append(HeuristicResult(
                 risk_level="Medium",
@@ -104,10 +107,14 @@ class HeuristicAnalyzer:
     def _check_large_deletions(self, analysis: Analysis):
         deleted_lines = len(re.findall(r"^\-", self.diff, re.MULTILINE))
         added_lines = len(re.findall(r"^\+", self.diff, re.MULTILINE))
-        
+
         if deleted_lines > 50 and added_lines < (deleted_lines / 2):
+            reason = (
+                f"Large deletion detected ({deleted_lines} lines). "
+                "Verify no functionality was lost."
+            )
             analysis.results.append(HeuristicResult(
                 risk_level="Medium",
                 category="Risk",
-                reason=f"Large deletion detected ({deleted_lines} lines). Verify no functionality was lost."
+                reason=reason
             ))

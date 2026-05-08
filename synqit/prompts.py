@@ -101,7 +101,6 @@ Specific, actionable steps to mitigate risks.
 def review_user_prompt(diff: str, file_list: list[str], heuristics: list[str]) -> str:
     files_str = "\n".join([f"- {f}" for f in file_list])
     heuristics_str = "\n".join([f"- {h}" for h in heuristics])
-    
     return f"""\
 ### Context
 Changed Files:
