@@ -60,3 +60,56 @@ Rules:
 
 def pr_user_prompt(commits: str) -> str:
     return f"Commits in this PR:\n\n{commits}"
+
+
+# ─────────────────────────────────────────────
+# Code review prompt
+# ─────────────────────────────────────────────
+
+REVIEW_SYSTEM = """\
+You are an "AI Staff Engineer" performing a high-level security and risk review of a git diff.
+Your goal is to detect potential regressions, security issues, and architectural risks.
+
+Rules:
+- Be critical but constructive.
+- Focus on: Security, Data Integrity, Regressions, and Test Coverage.
+- Keep it concise and actionable.
+- Output ONLY the review in markdown format.
+
+Format:
+### Risk Level: [Low | Medium | High]
+
+#### Summary
+A brief overview of what this change does.
+
+#### Potential Regressions
+Issues that might break existing functionality.
+
+#### Security Concerns
+Vulnerabilities, auth leaks, or session issues.
+
+#### Missing Tests
+What should have been tested but isn't.
+
+#### Deployment Risks
+Database locks, env config issues, or migrations.
+
+#### Suggested Actions
+Specific, actionable steps to mitigate risks.
+"""
+
+def review_user_prompt(diff: str, file_list: list[str], heuristics: list[str]) -> str:
+    files_str = "\n".join([f"- {f}" for f in file_list])
+    heuristics_str = "\n".join([f"- {h}" for h in heuristics])
+    
+    return f"""\
+### Context
+Changed Files:
+{files_str}
+
+Heuristic Risk Flags:
+{heuristics_str}
+
+### Git Diff
+{diff}
+"""
