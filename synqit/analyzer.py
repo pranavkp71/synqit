@@ -61,7 +61,7 @@ class HeuristicAnalyzer:
 
         return analysis
 
-    def _check_auth_changes(self, analysis: Analysis):
+    def _check_auth_changes(self, analysis: Analysis) -> None:
         for file in self.changed_files:
             file_lower = file.lower()
             if any(kw in file_lower for kw in self.AUTH_KEYWORDS):
@@ -72,7 +72,7 @@ class HeuristicAnalyzer:
                 ))
                 return # Only add once
 
-    def _check_migrations(self, analysis: Analysis):
+    def _check_migrations(self, analysis: Analysis) -> None:
         if any("migrations" in file.lower() for file in self.changed_files):
             analysis.results.append(HeuristicResult(
                 risk_level="Medium",
@@ -80,7 +80,7 @@ class HeuristicAnalyzer:
                 reason="Database migrations detected. Ensure backward compatibility."
             ))
 
-    def _check_env_changes(self, analysis: Analysis):
+    def _check_env_changes(self, analysis: Analysis) -> None:
         for file in self.changed_files:
             if any(kw in file.lower() for kw in self.ENV_KEYWORDS):
                 analysis.results.append(HeuristicResult(
@@ -90,7 +90,7 @@ class HeuristicAnalyzer:
                 ))
                 return
 
-    def _check_missing_tests(self, analysis: Analysis):
+    def _check_missing_tests(self, analysis: Analysis) -> None:
         code_files = [
             f for f in self.changed_files
             if f.endswith(".py") and "test" not in f.lower()
@@ -104,7 +104,7 @@ class HeuristicAnalyzer:
                 reason=f"Modified {len(code_files)} code files but no tests updated."
             ))
 
-    def _check_large_deletions(self, analysis: Analysis):
+    def _check_large_deletions(self, analysis: Analysis) -> None:
         deleted_lines = len(re.findall(r"^\-", self.diff, re.MULTILINE))
         added_lines = len(re.findall(r"^\+", self.diff, re.MULTILINE))
 
