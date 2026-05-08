@@ -51,6 +51,13 @@ def get_staged_diff(max_chars: int = 12_000) -> str:
     return diff
 
 
+def get_staged_files() -> list[str]:
+    """Return a list of staged file paths."""
+    repo = get_repo()
+    files = repo.git.diff("--cached", "--name-only").splitlines()
+    return [f.strip() for f in files if f.strip()]
+
+
 def get_unstaged_diff(max_chars: int = 12_000) -> str:
     """Return unstaged working-tree diff (for informational use)."""
     repo = get_repo()
