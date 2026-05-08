@@ -92,7 +92,7 @@ class HeuristicAnalyzer:
 
     def _check_missing_tests(self, analysis: Analysis):
         code_files = [
-            f for f in self.changed_files 
+            f for f in self.changed_files
             if f.endswith(".py") and "test" not in f.lower()
         ]
         test_files = [f for f in self.changed_files if "test" in f.lower()]
